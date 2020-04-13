@@ -20,21 +20,21 @@
 This client server pair allows for file transfer and directory navigation clientside.
 The clientside has a fully functional shell, with pwd, cd, ls functionalities.
 Primitive builtin commands are as follows:
-	* CONNECT <ipaddress> <port>
-	* UPLOAD <filename>
-	* DOWNLOAD <filename>
-	* NEWPROMPT <prompt>	//changes the prompt for the shell
-	* CD <argument> 		//change dir, takes the same args as system("cd")
-	* CD 			// using CD with no argument Prints the working directory!
-	* BYE			//exits the shell safetly and frees all pointers/sockets
-	* DELETE <filename>	//deletes a file on the server
-	* DIR			//pulls file information from the server
-	* LV			//lists environment variables in the shell
-	* LS			//list files in current dir
-	* $<variablename>		//dereferences environment variable	
-	* <variablename> = "<value>"	//stores a var in the client environment.
-					MUST USE spaces in between <variablename> and = and <value>
-					<value> must have "" quotations
+* CONNECT <ipaddress> <port>
+* UPLOAD <filename>
+* DOWNLOAD <filename>
+* NEWPROMPT <prompt>	//changes the prompt for the shell
+* CD <argument> 		//change dir, takes the same args as system("cd")
+* CD 			// using CD with no argument Prints the working directory!
+* BYE			//exits the shell safetly and frees all pointers/sockets
+* DELETE <filename>	//deletes a file on the server
+* DIR			//pulls file information from the server
+* LV			//lists environment variables in the shell
+* LS			//list files in current dir
+* $<variablename>		//dereferences environment variable	
+* <variablename> = "<value>"	//stores a var in the client environment.
+				MUST USE spaces in between <variablename> and = and <value>
+				<value> must have "" quotations
 	
 ## Default Shell Environment variables:
 * HomeDir : stores the working directory of the shell.

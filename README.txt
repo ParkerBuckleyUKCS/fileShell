@@ -1,8 +1,9 @@
 Author: Parker Buckley
-Project: novshell
+Project: Basic Server Client FTP
 
 Files: 
-	main.cpp
+	main.cpp	// for client shell
+	server.cpp
 	eventHandler.cpp
 	eventHandler.h
 	parser.cpp
@@ -11,18 +12,38 @@ Files:
 	scanner.h
 	prompter.cpp
 	prompter.h
+	socketHandler.h	
+	socketHandler.cpp
 	Makefile
 
 Description:
-
-Algorithms Used:
-		SCANNING: I designed my own algorithm which does the following
-			The entire input line is read in. It is tokenized using nested while loops
-			by first checking for a space, and then checking for double quotes so it can
-			ignore spaces until another quote. These tokens are pushed into a storage vector
-			and the remaining input line is returned for further processing.
-		PARSING: This is also an algorithm of my own design.
-			The parser first checks if the first token is a builtin command. If it is,
-			an integer code from 0-10 is returned to the eventhandler class that processes
-			the input accordingly. If it is not builtin or program control command, the parser
-			assumed variables assignment and checks proper syntax for that.
+	This client server pair allows for file transfer and directory navigation clientside.
+	The clientside has a fully functional shell, with pwd, cd, ls functionalities.
+	Primitive builtin commands are as follows:
+		CONNECT <ipaddress> <port>
+		UPLOAD <filename>
+		DOWNLOAD <filename>
+		NEWPROMPT <prompt>	//changes the prompt for the shell
+		CD <argument> 		//change dir, takes the same args as system("cd")
+		CD 			// using CD with no argument Prints the working directory!
+		BYE			//exits the shell safetly and frees all pointers/sockets
+		DELETE <filename>	//deletes a file on the server
+		DIR			//pulls file information from the server
+		LV			//lists environment variables in the shell
+		LS			//list files in current dir
+		$<variablename>		//dereferences environment variable	
+		<variablename> = "<value>"	//stores a var in the client environment.
+						MUST USE spaces in between <variablename> and = and <value>
+						<value> must have "" quotations
+	
+		Default Shell Environment variables:
+			HomeDir : stores the working directory of the shell.
+				You may use CD $HomeDir to return to the HomeDir path.
+			PATH : default value is /usr:/bin:/usr/bin
+			ShowTokens : A Boolean to show the tokens being extracted by the client.
+				Default value is zero. To turn on, type ShowTokens = 1
+	
+Building:
+	tpye "make clean" to remove all of the .o objects for the linker.
+	type "make" to build the fileClient executable.
+	type "make fileServer" to build the fileServer executable.

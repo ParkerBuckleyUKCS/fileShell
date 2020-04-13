@@ -33,6 +33,7 @@ void getFileNames()
 				CWD += cwd[i];
 
 			//cout << CWD << ",";
+			if (CWD != ".." && CWD != ".")
 			fileNames.push_back(CWD);
 		}
 	closedir(dir);
@@ -74,9 +75,8 @@ int main()
 	string command;
 	socketHandler S;
 	S.serverConnect();
-	S.setWho("server");
+	S.setWho("server");	//allows for proper socketHandler member functions to be called
 
-	cout << "Who is set" << endl;	
 	while(true)
 	{
 		getFileNames();	//index local filenames
@@ -92,7 +92,7 @@ int main()
 				string filename = "";
 				while(filename == "")
 				{
-					cout << "recieving...";
+					cout << "...recieving...";
 					filename = S.recieveCommand();
 					wait(100);
 				}
@@ -104,6 +104,54 @@ int main()
 					{
 						cout << "File does not exist" << endl;
 					}
+			}
+			else if(command == "upload")	//server need to download
+			{
+				string filename = "";
+				while(filename == "")
+				{
+					cout << "...recieving...";
+					filename = S.recieveCommand();
+					wait(100);
+				}
+				if(compareFileName(filename))
+				{
+					string arg = "rm -r " + filename;
+					system(arg.c_str());//file already exists
+					S.download(filename);
+					//OVERWRITE!
+				}
+				else
+				{
+					S.download(filename);
+				}
+			}
+			else if(command == "dir")
+			{		
+				string arg = "rm -r tmp.txt";		
+				cout << "...removing tmp files...";
+				system(arg.c_str());
+				arg = "ls > tmp.txt";
+				cout << "...writing dirnames...";
+				system(arg.c_str());
+				S.recieveCommand();
+				cout << "uploading...";
+				S.upload("tmp.txt");
+				cout << "done." << endl;
+
+			}
+			else if(command == "delete")
+			{
+				string filename = "";
+				while(filename == "")
+				{
+					cout << "...recieving...";
+					filename = S.recieveCommand();
+					wait(100);
+				}
+					string arg = "rm -r " + filename;
+					system(arg.c_str());
+					cout << filename << " deleted" << endl;
 			}
 		}
 	}

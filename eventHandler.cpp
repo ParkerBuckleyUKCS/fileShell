@@ -36,6 +36,14 @@ bool eventHandler::executeCommand(int commandID, Prompter &p, socketHandler& cli
 		break;
 		
 		case 2: // UPLOAD
+			if(tokens.size() != 2)
+				cout << "Proper usage is UPLOAD <filename>";
+			else
+			{
+				clientSocket.sendCommand("upload");
+				wait(100);
+				clientSocket.upload(tokens[1]);	//upload filename
+			}
 			return false;
 		break;
 		
@@ -86,8 +94,7 @@ bool eventHandler::executeCommand(int commandID, Prompter &p, socketHandler& cli
 			{
 				clientSocket.sendCommand("download");
 				wait(100);
-				clientSocket.sendCommand(tokens[1]);
-				clientSocket.download(tokens[1]);
+				clientSocket.download(tokens[1]);	//download filename
 			}
 			else	cout << "Proper usage is DOWNLOAD <filename>" << endl;
 			return false;
@@ -98,11 +105,37 @@ bool eventHandler::executeCommand(int commandID, Prompter &p, socketHandler& cli
 		break;
 		
 		case 7: // DELETE
+			{
+			if (tokens.size() != 2)
+				cout << "Proper usage is delete <filename>";
+			else
+			{ 
+				clientSocket.sendCommand("delete");
+				wait(100);
+				clientSocket.sendCommand(tokens[1]);
+			}
 			return false;		// end case 7
+			}
 		break;
 		
-		case 8: //DIR	
+		case 8: //DIR
+			{
+			if (tokens.size() != 1)
+				cout << "Proper usage is dir";
+			else
+			{
+				clientSocket.sendCommand("dir");	
+			}
+			wait(100);
+			string arg = "rm -r ./tmp.txt";
+			system(arg.c_str());
+			clientSocket.download("tmp.txt");
+			wait(100);			
+			cout << endl << "Directories:" << endl;
+			arg = "cat tmp.txt";
+			system(arg.c_str());
 			return false;
+			}
 		break;
 
 		case 9: // LV
@@ -127,6 +160,11 @@ bool eventHandler::executeCommand(int commandID, Prompter &p, socketHandler& cli
 			}
 			else storeVariable(tokens[0],tokens[2]);
 			
+			return false;
+		}
+		case 11: //LS
+		{
+			system("ls");
 			return false;
 		}	
 		break;

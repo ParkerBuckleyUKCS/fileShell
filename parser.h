@@ -7,7 +7,7 @@
 #include <regex>
 #include "eventHandler.h"
 
-#define NUMCOMMANDS 9
+#define NUMCOMMANDS 11
 using namespace std;
 
 class Parser

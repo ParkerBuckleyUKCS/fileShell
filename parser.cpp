@@ -6,7 +6,7 @@ Parser::Parser()
 {
 	tokens.clear();
 
-	string arrTemp[NUMCOMMANDS] = { "CONNECT","UPLOAD","NEWPROMPT","CD","DOWNLOAD","BYE","DELETE","DIR","LV" };
+	string arrTemp[NUMCOMMANDS] = { "CONNECT","UPLOAD","NEWPROMPT","CD","DOWNLOAD","BYE","DELETE","DIR","LV","124124124","LS" };
 	
 	for (int i = 0; i < NUMCOMMANDS; i++) 
 	{

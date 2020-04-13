@@ -1,7 +1,7 @@
 # Client-Server FTP in C++
 
 
-##Files: 
+## Files: 
 	* main.cpp	// for client shell
 	* server.cpp
 	* eventHandler.cpp
@@ -16,7 +16,7 @@
 	* socketHandler.cpp
 	* Makefile
 
-##Description:
+## Description:
 	This client server pair allows for file transfer and directory navigation clientside.
 	The clientside has a fully functional shell, with pwd, cd, ls functionalities.
 	Primitive builtin commands are as follows:
@@ -36,14 +36,14 @@
 						MUST USE spaces in between <variablename> and = and <value>
 						<value> must have "" quotations
 	
-##Default Shell Environment variables:
+## Default Shell Environment variables:
 		* HomeDir : stores the working directory of the shell.
 			You may use CD $HomeDir to return to the HomeDir path.
 		* PATH : default value is /usr:/bin:/usr/bin
 		* ShowTokens : A Boolean to show the tokens being extracted by the client.
 			Default value is zero. To turn on, type ShowTokens = 1
 	
-##Building:
+## Building:
 	call 'make clean' to remove all of the .o objects for the linker.
 	call 'make" to build' the fileClient executable.
 	call 'make fileServer' to build the fileServer executable.

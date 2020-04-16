@@ -144,24 +144,28 @@ void socketHandler::download(std::string fileName)
 			size_t n = 0;
 				
 			sendCommand(fileName);	//send filename to the server
-			recv(client_fd, &bytes, sizeof(int), 0);
+			recv(client_fd, &bytes, sizeof(int), 0);	
 			filehandle = open(fileName.c_str(), O_CREAT | O_EXCL | O_WRONLY, 0666);
 			if(filehandle < 0)
 			{
 				std::cout << "Error in file open/create" << std::endl;
 			}
 			char *f = (char*)malloc(bytes);
-			memset(f,0,bytes);
-	
+			memset(f,0,bytes);			
+
 			std::cout << "File found...";
 			std::cout << "File: " << fileName << " has been opened...";				
+			
+			int kBytes = 0;
+			bool mByteSend = false;
 			unsigned long long int totalDuration = 0;
 			while(total < bytes)
-			{	
+			{		
+				bool endTransmission = false;
 				bool kbyteSend = false;
 				using namespace std::chrono;
 				auto start = high_resolution_clock::now();
-				if(bytes - total < 1024)
+				if(bytes - total > 1024)
 				{
 					recv(client_fd, f, 1024, 0);
 					total += 1024;
@@ -171,20 +175,35 @@ void socketHandler::download(std::string fileName)
 				{
 					recv(client_fd, f, (bytes - total), 0);
 					total += (bytes - total);
+					endTransmission = true;
 				}
 				auto stop = high_resolution_clock::now();
 				auto duration = duration_cast<microseconds>(stop-start);
 				totalDuration += duration.count();
-				if(static_cast<double>((double)totalDuration/1000000.0) > 1)
+				std::cout << totalDuration;
+
+				if(kbyteSend)
 				{
-					totalDuration = 0;
-					if(kbyteSend)
-						CSV(fileName,1,1024);
-					else
-						CSV(fileName,1,(bytes-total));
+				 	kBytes++;
+				 	if(kBytes == 1024)
+					{
+						kBytes = 0;
+						mByteSend = true;	
+					}	
 				}
+				if(mByteSend)
+				{	
+						csvData.push_back((long int)duration.count());
+						csvData.push_back((long int)1024);
+						mByteSend = false;
+				}
+				else if(endTransmission || !kbyteSend )	
+				{
+						csvData.push_back((long int)duration.count());
+						csvData.push_back((long int)(bytes - total));
+				}
+		
 			}
-			
 			std::cout << "...writing file...";
 			n = write(filehandle,f,bytes);	
 			int err = close(filehandle);
@@ -196,7 +215,9 @@ void socketHandler::download(std::string fileName)
 			}
 			else std::cout << "...File Write Completed" << std::endl;
 			downloading = false;
-			free(f);		
+			free(f);
+			CSV(fileName);
+			csvData.clear();		
 		}
 	}
 	else if(who == "server")
@@ -217,15 +238,18 @@ void socketHandler::download(std::string fileName)
 				std::cout << "Error in file open/create" << std::endl;
 			}
 			char *f = (char*)malloc(bytes);
-			memset(f,0,bytes);			
-
+			memset(f,0,bytes);
+			
 			unsigned long long int totalDuration = 0;
+			int kBytes = 0;
+			bool mByteSend = false;
 			while(total < bytes)
 			{
+				bool endTransmission = false;
 				bool kbyteSend = false;
 				using namespace std::chrono;
 				auto start = high_resolution_clock::now();
-				if(bytes - total < 1024)
+				if(bytes - total > 1024)
 				{
 					recv(new_socket, f, 1024, 0);
 					total += 1024;
@@ -235,21 +259,38 @@ void socketHandler::download(std::string fileName)
 				{
 					recv(new_socket, f, (bytes - total), 0);
 					total += (bytes - total);
+					endTransmission = true;
 				}
 				auto stop = high_resolution_clock::now();
 				auto duration = duration_cast<microseconds>(stop-start);
 				totalDuration += duration.count();
-				if(static_cast<double>((double)totalDuration/1000000.0) > 1)
+				std::cout << totalDuration;
+							
+				if(kbyteSend)
 				{
-					totalDuration = 0;
-					if(kbyteSend)
-						CSV(fileName,1,1024);
-					else
-						CSV(fileName,1,(bytes-total));
+				 	kBytes++;
+				 	if(kBytes == 1024)
+					{
+						kBytes = 0;
+						mByteSend = true;	
+					}	
+				}
+				if(mByteSend)
+				{	
+						csvData.push_back((long int)duration.count());
+						csvData.push_back((long int)1024);
+						mByteSend = false;
+				}
+				else if(endTransmission)	
+				{
+						csvData.push_back((long int)duration.count());
+						csvData.push_back((long int)(bytes - total));
 				}
 			}
+		
 			std::cout << "File found...";
 			std::cout << "File: " << fileName << " has been opened...";	
+
 			if (bytes > 0)	
 			 	n = write(filehandle,f,bytes);
 			if (n < 0)
@@ -260,6 +301,8 @@ void socketHandler::download(std::string fileName)
 			downloading = false;
 			close(filehandle);
 			free(f);
+			CSV(fileName);
+			csvData.clear();
 			std::cout << "File handle closed" << std::endl;
 		}
 	}
@@ -315,7 +358,7 @@ void socketHandler::upload(std::string fileName)
 			}
 			
 			close(filehandle);
-			std::cout << "...File Handle Closed" << std::endl;
+			std::cout << "...File Handle Closed...done." << std::endl;
 			uploading = false;
 		}
 	}
@@ -371,10 +414,13 @@ std::string socketHandler::recieveCommand()
 	return command;
 }
 
-void socketHandler::CSV(std::string filename, int seconds, int bytes)
+void socketHandler::CSV(std::string filename)
 {
 	std::string outfile = filename + "_output.csv";
-	fout.open(outfile, std::ofstream::out);
-	fout << seconds << "," << bytes << std::endl;
+	fout.open(outfile, std::ofstream::out | std::ofstream::app);	//append, do not overwite
+	for (int i = 0; i < csvData.size()-1; i+=2)
+	{
+		fout << csvData[i] << "," << csvData[i+1] << std::endl;
+	}
 	fout.close();
 }

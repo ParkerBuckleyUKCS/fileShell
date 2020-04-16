@@ -13,6 +13,7 @@
 #include <fcntl.h> // for O_RDONLY
 #include <sys/stat.h> //filesize?
 #include <sys/sendfile.h> //sendfile()
+#include <vector>	//for csvdata
  
 class socketHandler {
 public:
@@ -27,7 +28,7 @@ public:
 	void setWho(std::string identity);	//used to call proper member functions for server/client
 	void sendCommand(std::string command);
 	std::string recieveCommand();	//used for sending commands to/from server
-	void CSV(std::string filename, int seconds, int bytes);	//output for CSV file 
+	void CSV(std::string filename);	//output for CSV file 
 private:
 	short port = 1337;
 	int client_fd, server_fd, new_socket, valread, opt = 1;
@@ -36,9 +37,9 @@ private:
 	int addrlen = sizeof(Address);
 	char * serverIP;
 	bool downloading, uploading;
-	//char * buffer_write;
-	std::string who;
+	std::string who;	//identifies client/server
 	std::fstream fin, fout;
-	int filehandle;
-	struct stat obj;
+	int filehandle;		//used to establish download buffers with malloc
+	struct stat obj;	//used for taking filesize
+	std::vector<long int> csvData;
 }; 
